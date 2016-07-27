@@ -16,5 +16,10 @@ namespace ILLabor
         {
             Console.WriteLine("A nevem " + Name);
         }
+
+        public virtual void WriteAge()
+        {
+            Console.WriteLine("A korom " + Age);
+        }
     }
 }
