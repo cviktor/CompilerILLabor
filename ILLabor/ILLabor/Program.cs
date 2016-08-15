@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using DiscoverMe;
@@ -10,40 +11,71 @@ namespace ILLabor
 {
     public class Program
     {
+        //public delegate void StringWriter(object target);
+
+        public delegate List<int> AddToList(List<int> list, int value);
         static void Main(string[] args)
         {
-            //var assembly = Assembly.LoadFrom("DiscoverMe.dll");
-            //Console.WriteLine(assembly.FullName + ": " + assembly.Location);
+            //GenerateStringWriterFor(new Person(2010));
+            AddToList generated = GenerateAddToList();
 
-            //foreach (var type in assembly.GetExportedTypes())
-            //{
-            //    Console.WriteLine(type.Name);
-            //    Console.WriteLine("\tPublikus tagok");
-            //    foreach (var memberInfo in type.GetMembers())
-            //    {
-            //        Console.WriteLine($"\t\t{memberInfo.Name}: {memberInfo.MemberType}");
-            //    }
-            //}
+            var list = new List<int>();
+            generated(list, 1);
+            generated(list, 0);
+            generated(list, -2);
 
-
-            //Type helloType = typeof(HelloWorld);
-            //ConstructorInfo ctor = helloType.GetConstructors()[0];
-            //HelloWorld hello = (HelloWorld)ctor.Invoke(new object[0]);
-            //hello.WriteHello("BME");
-
-            //Person p = new Person(2010);
-            //Type personType = p.GetType();
-            //PropertyInfo pi = personType.GetProperty("Age");
-            //MethodInfo mi = pi.GetMethod;
-            //object age = mi.Invoke(p, new object[0]);
-            //Console.WriteLine(age);
-
-            //MethodInfo greetMethod = personType.GetMethod("Greet");
-            //ParameterInfo paramInfo = greetMethod.GetParameters()[0];
-            //Console.WriteLine($"A {paramInfo.Name} paraméter típusa: {paramInfo.ParameterType.Name}");
-            //greetMethod.Invoke(p, new object[] { "BME" });
+            foreach (var i in list)
+            {
+                Console.WriteLine(i);
+            }
 
             Console.ReadKey();
         }
+
+        private static AddToList GenerateAddToList()
+        {
+            DynamicMethod writer = new DynamicMethod("AddToList", 
+                typeof(List<int>), new[] { typeof(List<int>), typeof(int) });
+            MethodInfo addMethod = typeof(List<int>).GetMethod("Add");
+
+            var gen = writer.GetILGenerator();
+            var retLabel = gen.DefineLabel();
+
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Ldc_I4_0);
+            gen.Emit(OpCodes.Blt, retLabel);
+
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ldarg_1);
+            gen.Emit(OpCodes.Call, addMethod);
+
+            gen.MarkLabel(retLabel);
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Ret);
+            return (AddToList)writer.CreateDelegate(typeof(AddToList));
+        }
+
+        //private static void GenerateStringWriterFor(object target)
+        //{
+        //    DynamicMethod writer = new DynamicMethod("PersonWriter", typeof(void), new[] { typeof(object) });
+
+        //    MethodInfo writeString = typeof(Console).GetMethod("WriteLine", new[] { typeof(string) });
+
+        //    Type targetType = target.GetType();
+        //    var gen = writer.GetILGenerator();
+
+        //    foreach (var member in targetType.GetFields())
+        //    {
+        //        gen.Emit(OpCodes.Ldarg_0);
+        //        gen.Emit(OpCodes.Castclass, targetType);
+        //        gen.Emit(OpCodes.Ldfld, member);
+        //        gen.Emit(OpCodes.Pop);
+
+        //    }
+
+        //    gen.Emit(OpCodes.Ret);
+        //    StringWriter generated = (StringWriter)writer.CreateDelegate(typeof(StringWriter));
+        //    generated(target);
+        //}
     }
 }

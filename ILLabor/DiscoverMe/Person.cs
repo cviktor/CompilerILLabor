@@ -8,6 +8,9 @@ namespace DiscoverMe
 {
     public class Person
     {
+        private static int maxId;
+        public int id;
+
         public int BirthYear { get; set; }
 
         public int Age { get { return DateTime.Now.Year - BirthYear; } }
@@ -17,14 +20,15 @@ namespace DiscoverMe
             Console.WriteLine("Hello " + name);
         }
 
-        public Person()
+        public Person() : this(DateTime.Now.Year - 20)
         {
-            BirthYear = DateTime.Now.Year - 20;
         }
 
         public Person(int birthYear)
         {
             BirthYear = birthYear;
+            id = maxId;
+            maxId++;
         }
     }
 }
