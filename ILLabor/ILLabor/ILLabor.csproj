@@ -50,9 +50,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CodeSnippets.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DiscoverMe\DiscoverMe.csproj">
       <Project>{722e796c-a868-42b2-9030-58ca812e09cb}</Project>
       <Name>DiscoverMe</Name>
